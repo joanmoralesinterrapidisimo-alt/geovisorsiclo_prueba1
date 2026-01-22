@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>SiCLO · Plataforma Geoespacial</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- MapLibre -->
+  <link
+    href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css"
+    rel="stylesheet"
+  />
+
+  <!-- Tipografía moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0b0f14;
+      color: #e5e7eb;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /* Panel lateral */
+    .panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 320px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+    }
+
+    .panel h1 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 6px 0;
+    }
+
+    .panel p {
+      font-size: 12px;
+      color: #9ca3af;
+      margin: 0 0 14px 0;
+    }
+
+    .layer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .layer input {
+      accent-color: #38bdf8;
+    }
+
+    /* Popup */
+    .maplibregl-popup-content {
+      background: #020617;
+      color: #e5e7eb;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .maplibregl-popup-close-button {
+      color: #9ca3af;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div class="panel">
+  <h1>SiCLO</h1>
+  <p>Sistema de Integración Comercial y Logístico</p>
+
+  <div class="layer">
+    <span>Lotes</span>
+    <input type="checkbox" id="lotes" checked />
+  </div>
+
+  <div class="layer">
+    <span>Malla vial</span>
+    <input type="checkbox" id="malla" checked />
+  </div>
+
+  <div class="layer">
+    <span>Sectores</span>
+    <input type="checkbox" id="sectores" />
+  </div>
+</div>
+
+<!-- MapLibre -->
+<script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
+
+<!-- PMTiles -->
+<script src="https://unpkg.com/pmtiles@3.0.6/dist/index.js"></script>
+
+<script>
+  // ===== MAP INIT =====
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: {
+      version: 8,
+      sources: {
+        osm: {
+          type: 'raster',
+          tiles: [
+            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          ],
+          tileSize: 256
+        }
+      },
+      layers: [
+        {
+          id: 'osm',
+          type: 'raster',
+          source: 'osm'
+        }
+      ]
+    },
+    center: [-74.08175, 4.60971], // Bogotá
+    zoom: 11,
+    pitch: 0,
+    bearing: 0
+  });
+
+  map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+  // ===== PMTILES PROTOCOL =====
+  const protocol = new pmtiles.Protocol();
+  maplibregl.addProtocol('pmtiles', protocol.tile);
+
+  map.on('load', () => {
+
+    // === LOTES ===
+    map.addSource('lotes', {
+      type: 'vector',
+      url: 'pmtiles://tiles/lotes.pmtiles'
+    });
+
+    map.addLayer({
+      id: 'lotes-fill',
+      type: 'fill',
+      source: 'lotes',
+      'source-layer': 'lotes',
+      paint: {
+        'fill-color': '#38bdf8',
+        'fill-opacity': 0.15
+      }
+    });
+
+    map.addLayer({
+      id: 'lotes-line',
+      type: 'line',
+      source: 'lotes',
+      'source-layer': 'lotes',
+      paint: {
+        'line-color': '#38bdf8',
+        'line-width': 0.6
+      }
+    });
+
+    // === MALLA VIAL ===
+    map.addSource('malla', {
+      type: 'vector',
+      url: 'pmtiles://tiles/malla.pmtiles'
+    });
+
+    map.addLayer({
+      id: 'malla-line',
+      type: 'line',
+      source: 'malla',
+      'source-layer': 'malla',
+      paint: {
+        'line-color': '#fbbf24',
+        'line-width': 1.1
+      }
+    });
+
+    // === SECTORES ===
+    map.addSource('sectores', {
+      type: 'vector',
+      url: 'pmtiles://tiles/sectores.pmtiles'
+    });
+
+    map.addLayer({
+      id: 'sectores-fill',
+      type: 'fill',
+      source: 'sectores',
+      'source-layer': 'sectores',
+      paint: {
+        'fill-color': '#22c55e',
+        'fill-opacity': 0.08
+      }
+    });
+  });
+
+  // ===== UI TOGGLES =====
+  document.getElementById('lotes').onchange = e => {
+    map.setLayoutProperty('lotes-fill', 'visibility', e.target.checked ? 'visible' : 'none');
+    map.setLayoutProperty('lotes-line', 'visibility', e.target.checked ? 'visible' : 'none');
+  };
+
+  document.getElementById('malla').onchange = e => {
+    map.setLayoutProperty('malla-line', 'visibility', e.target.checked ? 'visible' : 'none');
+  };
+
+  document.getElementById('sectores').onchange = e => {
+    map.setLayoutProperty('sectores-fill', 'visibility', e.target.checked ? 'visible' : 'none');
+  };
+</script>
+
+</body>
+</html>
