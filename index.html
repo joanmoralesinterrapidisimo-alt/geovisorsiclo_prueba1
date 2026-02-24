@@ -6,9 +6,8 @@
       name="viewport"
       content="initial-scale=1, maximum-scale=1, user-scalable=no"
     />
-    <title>
-      ArcGIS Developer Guide: Display a map style with an access token
-    </title>
+    <title>SICLO — ArcGIS Basemap</title>
+
     <style>
       html,
       body,
@@ -18,8 +17,6 @@
         height: 100%;
         width: 100%;
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 14px;
-        color: #323232;
       }
 
       .maplibregl-ctrl-bottom-right {
@@ -38,26 +35,57 @@
     <div id="map"></div>
 
     <script>
+      // 🔑 TU TOKEN DE ARCGIS
+      const accessToken = "AAPT3NKHt6i2urmWtqOuugvr9YKeAdTbmdvFrm5yqSBs3PvoI3_35WdBClipG8D7dhk8d0DUBe2qZ1_Lez2vWq-akM4kZTmvbdawIPwlJQyKHiiNClBctzVcAhqR8rP_1VNMV3NwN_i99q6aFQ5nxcfRzdoAeMLs3yHQ2ETH1KI6WqcXVcmD1bDA3AUrLxrvRYGDb2NanQWmwL1R1J6xyTewB61vu7WCV8Aqk9Ivduhpf9GL8lh69RN7JD4_8wrreu7_";
 
-      const accessToken = "AAPT3NKHt6i2urmWtqOuugvr9YKeAdTbmdvFrm5yqSBs3PvoI3_35WdBClipG8D7dhk8d0DUBe2qZ1_Lez2vWq-akM4kZTmvbdawIPwlJQyKHiiNClBctzVcAhqR8rP_1VNMV3NwN_i99q6aFQ5nxcfRzdoAeMLs3yHQ2ETH1KI6WqcXVcmD1bDA3AUrLxrvRYGDb2NanQWmwL1R1J6xyTewB61vu7WCV8Aqk9Ivduhpf9GL8lh69RN7JD4_8wrreu7_"
+      // 📍 Centro en Bogotá
+      const bogotaCenter = [-74.08175, 4.60971];
 
-      // Access the basemap service and style
+      // 🗺️ Crear mapa
       const map = new maplibregl.Map({
         container: "map",
         style: `https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles/open/osm-style-relief?token=${accessToken}`,
-        zoom: 13, // starting zoom
-        center: [-119.0265, 37.639], // starting location [longitude, latitude]
-        maxZoom: 16, // limit zoom out
-        minZoom: 12, // limit zoom in
-        maxBounds: [ // limit map extent for pan
-          [-119.1486, 37.5667],
-          [-118.9147, 37.6956],
+        center: bogotaCenter,
+        zoom: 12,
+        minZoom: 10,
+        maxZoom: 19,
+        pitch: 0,
+        bearing: 0,
+        maxBounds: [
+          [-74.35, 4.45], // suroccidente Bogotá
+          [-73.95, 4.85]  // nororiente Bogotá
         ]
-      })
+      });
 
-      // Limit user interactions
-      map.dragRotate.disable()
-      map.touchZoomRotate.disableRotation()
-      map.setMaxPitch(0)
-      map.setMinPitch(0)
-      map.touchPitch.disable()
+      // 🚫 Desactivar rotaciones (estilo GIS clásico)
+      map.dragRotate.disable();
+      map.touchZoomRotate.disableRotation();
+      map.touchPitch.disable();
+      map.setMaxPitch(0);
+      map.setMinPitch(0);
+
+      // ➕ Controles
+      map.addControl(new maplibregl.NavigationControl(), "bottom-right");
+      map.addControl(new maplibregl.ScaleControl({
+        maxWidth: 120,
+        unit: "metric"
+      }));
+
+      // 📍 Marcador SICLO (opcional)
+      const marker = new maplibregl.Marker({ color: "#8a2be2" })
+        .setLngLat(bogotaCenter)
+        .addTo(map);
+
+      // 🎯 Evento listo para integrar capas ArcGIS
+      map.on("load", () => {
+        console.log("Mapa SICLO listo");
+
+        // Aquí podrás añadir:
+        // - capas vectoriales
+        // - GeoJSON
+        // - tiles
+        // - servicios ArcGIS
+      });
+    </script>
+  </body>
+</html>
