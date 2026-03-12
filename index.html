@@ -1,422 +1,405 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SICLO - Sistema de Integración Comercial y Logístico</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #050508;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        #canvas-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+<title>SICLO | Sistema de Integración Comercial y Logístico</title>
 
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=Space+Grotesk:wght@300;400&display=swap" rel="stylesheet">
 
-        .overlay-text {
-            position: relative;
-            left: 15px;
-            z-index: 10;
-            color: white;
-            font-size: 3rem;
-            font-weight: 200;
-            letter-spacing: 1.5rem;
-            text-transform: uppercase;
-            opacity: 0;
-            animation: fadeInOut 8s ease-in-out infinite;
-            text-shadow: 0 0 20px rgba(138, 43, 226, 0.6), 0 0 40px rgba(0, 191, 255, 0.3);
-            pointer-events: none;
-        }
+<style>
 
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; transform: scale(0.98); letter-spacing: 2rem; }
-            40%, 60% { opacity: 0.9; transform: scale(1); letter-spacing: 1.5rem; }
-        }
+/* ===== BASE ===== */
 
-        .scanline {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(18, 16, 16, 0.1) 50%);
-            background-size: 100% 4px;
-            z-index: 5;
-            pointer-events: none;
-            opacity: 0.3;
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
-        /* UI Elements */
-        .ui-panel {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            width: 90%;
-            max-width: 600px;
-        }
+body{
+font-family:'Inter',sans-serif;
+background:#050508;
+color:white;
+overflow-x:hidden;
+}
 
-        .gemini-btn {
-            background: rgba(138, 43, 226, 0.15);
-            border: 1px solid rgba(138, 43, 226, 0.4);
-            color: #d8b4fe;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            letter-spacing: 0.2rem;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
+/* ===== GRADIENT NOISE BACKGROUND ===== */
 
-        .gemini-btn:hover {
-            background: rgba(138, 43, 226, 0.3);
-            border-color: rgba(138, 43, 226, 0.8);
-            box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
-            transform: translateY(-2px);
-        }
+.gradient-bg{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:0;
 
-        .oracle-display {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            text-align: center;
-            line-height: 1.6;
-            min-height: 3em;
-            max-width: 500px;
-            font-weight: 300;
-            font-style: italic;
-            transition: opacity 0.5s ease;
-        }
+background:
+radial-gradient(circle at 20% 30%, rgba(108,140,255,0.15), transparent 40%),
+radial-gradient(circle at 80% 70%, rgba(138,43,226,0.12), transparent 45%),
+radial-gradient(circle at 60% 20%, rgba(90,110,255,0.08), transparent 40%),
+#050508;
 
-        .loading-dots:after {
-            content: ' .';
-            animation: dots 1.5s steps(5, end) infinite;
-        }
+animation:gradientMove 20s ease-in-out infinite alternate;
+}
 
-        @keyframes dots {
-            0%, 20% { content: ' .'; }
-            40% { content: ' ..'; }
-            60% { content: ' ...'; }
-            80%, 100% { content: ''; }
-        }
+.gradient-bg:after{
+content:"";
+position:absolute;
+width:100%;
+height:100%;
+background-image:url("https://grainy-gradients.vercel.app/noise.svg");
+opacity:.25;
+mix-blend-mode:overlay;
+}
 
-        .siclo-icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            background-image: url("data/Imagen6.png"); /* tu archivo */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            filter: brightness(0) invert(1); /* blanco */
-            vertical-align: middle;
-        }
-    </style>
+@keyframes gradientMove{
+
+0%{filter:hue-rotate(0deg);transform:scale(1);}
+50%{filter:hue-rotate(20deg);transform:scale(1.05);}
+100%{filter:hue-rotate(-10deg);transform:scale(1);}
+
+}
+
+/* ===== WEBGL CANVAS ===== */
+
+#bgCanvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:1;
+}
+
+/* ===== NAVBAR ===== */
+
+.navbar{
+
+position:fixed;
+top:0;
+left:0;
+width:100%;
+padding:25px 60px;
+z-index:20;
+
+backdrop-filter:blur(12px);
+background:rgba(0,0,0,.2);
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+.logo{
+
+font-family:'Space Grotesk';
+letter-spacing:.7rem;
+font-size:.9rem;
+font-weight:300;
+
+}
+
+.nav-links a{
+
+margin-left:35px;
+font-size:.8rem;
+letter-spacing:.2rem;
+color:rgba(255,255,255,.6);
+text-decoration:none;
+
+transition:all .3s;
+
+}
+
+.nav-links a:hover{
+
+color:#6C8CFF;
+
+}
+
+/* ===== CENTER HUB ===== */
+
+.hero{
+
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+position:relative;
+z-index:10;
+
+}
+
+.title{
+
+font-family:'Space Grotesk';
+font-size:3.2rem;
+letter-spacing:1.6rem;
+font-weight:300;
+
+margin-bottom:20px;
+
+}
+
+.subtitle{
+
+font-size:.85rem;
+letter-spacing:.35rem;
+color:rgba(255,255,255,.5);
+
+margin-bottom:80px;
+
+}
+
+/* ===== MODULE HUB ===== */
+
+.module-hub{
+
+position:relative;
+width:480px;
+height:480px;
+
+}
+
+.module{
+
+position:absolute;
+width:120px;
+height:120px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+border-radius:50%;
+
+border:1px solid rgba(108,140,255,.25);
+
+color:white;
+
+font-size:.7rem;
+letter-spacing:.2rem;
+text-align:center;
+
+cursor:pointer;
+
+backdrop-filter:blur(8px);
+
+transition:all .35s;
+
+}
+
+.module:hover{
+
+transform:scale(1.1);
+border-color:#6C8CFF;
+
+box-shadow:
+0 0 25px rgba(108,140,255,.3);
+
+}
+
+/* positions */
+
+.nogeo{top:0;left:50%;transform:translate(-50%,-50%);}
+.logistica{left:0;top:50%;transform:translate(-50%,-50%);}
+.comercial{right:0;top:50%;transform:translate(50%,-50%);}
+.gerencial{bottom:0;left:50%;transform:translate(-50%,50%);}
+
+/* ===== CENTRAL NODE ===== */
+
+.core{
+
+position:absolute;
+top:50%;
+left:50%;
+
+width:180px;
+height:180px;
+
+transform:translate(-50%,-50%);
+
+border-radius:50%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+border:1px solid rgba(255,255,255,.2);
+
+font-family:'Space Grotesk';
+letter-spacing:.4rem;
+
+backdrop-filter:blur(12px);
+
+}
+
+/* ===== FOOTER ===== */
+
+.footer{
+
+position:absolute;
+bottom:40px;
+
+font-size:.75rem;
+letter-spacing:.25rem;
+
+color:rgba(255,255,255,.4);
+
+}
+
+</style>
 </head>
+
 <body>
 
-    <div id="canvas-container">
-        <div class="scanline"></div>
-        <canvas id="mainCanvas"></canvas>
-        <div class="overlay-text" id="mainTitle">SICLO</div>
+<div class="gradient-bg"></div>
+<canvas id="bgCanvas"></canvas>
 
-        <div class="ui-panel">
-            <div id="oracleText" class="oracle-display">Initialize the city grid connection...</div>
-            <a href="https://share-open-data-interrapidisimo.hub.arcgis.com/" target="_blank">
-            <button id="geminiBtn" class="gemini-btn">
-              <span class="siclo-icon"></span>
-              Consult the Inter Base
-            
-            </button></a>
-        </div>
-    </div>
+<!-- NAVBAR -->
 
-    <script>
-        const apiKey = ""; // Environment handles this
-        const canvas = document.getElementById('mainCanvas');
-        const ctx = canvas.getContext('2d');
-        const oracleText = document.getElementById('oracleText');
-        const geminiBtn = document.getElementById('geminiBtn');
-        const mainTitle = document.getElementById('mainTitle');
-        
-        let width, height;
-        let mapLines = [];
+<nav class="navbar">
 
-        // --- GEMINI INTEGRATION ---
+<div class="logo">SICLO</div>
 
-        async function geminiCall(prompt) {
-            let retries = 0;
-            const delays = [1000, 2000, 4000, 8000, 16000];
+<div class="nav-links">
 
-            while (retries < 5) {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }],
-                            systemInstruction: { parts: [{ text: "You are the 'City Oracle' of Bogotá in a futuristic sci-fi setting. Provide short, poetic, and mysterious one-sentence insights about the city, its rain, its mountains (Monserrate), or its technological future. Keep it under 100 characters." }] }
-                        })
-                    });
+<a href="#">NoGeo</a>
+<a href="#">Logística</a>
+<a href="#">Comercial</a>
+<a href="#">Gerencial</a>
+<a href="https://share-open-data-interrapidisimo.hub.arcgis.com/" target="_blank">InterBase</a>
 
-                    if (!response.ok) throw new Error('API Error');
-                    const data = await response.ok ? await response.json() : null;
-                    return data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (e) {
-                    await new Promise(r => setTimeout(r, delays[retries]));
-                    retries++;
-                }
-            }
-            throw new Error('Connection Lost');
-        }
+</div>
 
-        async function speakInsight(text) {
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Say in a calm, futuristic, ethereal whisper: ${text}` }] }],
-                        generationConfig: {
-                            responseModalities: ["AUDIO"],
-                            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } }
-                        },
-                        model: "gemini-2.5-flash-preview-tts"
-                    })
-                });
+</nav>
 
-                const result = await response.json();
-                const pcmData = result.candidates[0].content.parts[0].inlineData.data;
-                const audioBlob = pcmToWav(pcmData, 24000); // Standard Gemini TTS sample rate
-                const audio = new Audio(URL.createObjectURL(audioBlob));
-                audio.play();
-            } catch (e) {
-                console.error("Audio error", e);
-            }
-        }
+<!-- HERO -->
 
-        // Helper to convert PCM to WAV for browser playback
-        function pcmToWav(base64, sampleRate) {
-            const buffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0)).buffer;
-            const length = buffer.byteLength;
-            const wavHeader = new ArrayBuffer(44);
-            const view = new DataView(wavHeader);
-            
-            view.setUint32(0, 0x46464952, true); // "RIFF"
-            view.setUint32(4, 36 + length, true);
-            view.setUint32(8, 0x45564157, true); // "WAVE"
-            view.setUint32(12, 0x20746d66, true); // "fmt "
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true); // PCM
-            view.setUint16(22, 1, true); // Mono
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            view.setUint32(36, 0x61746164, true); // "data"
-            view.setUint32(40, length, true);
+<section class="hero">
 
-            return new Blob([wavHeader, buffer], { type: 'audio/wav' });
-        }
+<div class="title">SICLO</div>
 
-        geminiBtn.onclick = async () => {
-            geminiBtn.disabled = true;
-            oracleText.innerHTML = '<span class="loading-dots">Accessing Neural Grid</span>';
-            
-            try {
-                const insight = await geminiCall("Provide a new cryptic transmission from futuristic Bogotá.");
-                oracleText.innerText = insight;
-                speakInsight(insight);
-            } catch (e) {
-                oracleText.innerText = "System. Reconnecting...";
-            } finally {
-                setTimeout(() => { geminiBtn.disabled = false; }, 2000);
-            }
-        };
+<div class="subtitle">
+SISTEMA DE INTEGRACIÓN COMERCIAL Y LOGÍSTICO
+</div>
 
+<div class="module-hub">
 
-        // --- ANIMATION LOGIC ---
-        
-        let particles = [];
-        
-        function init() {
-            resize();
-            createMap();
-            createParticles();
-            animate();
-        }
-        
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            createMap();
-        }
-        
-        function createMap() {
-            mapLines = [];
-            const count = 70;
-            for (let i = 0; i < count; i++) {
-                let x = Math.random() * width;
-                let y = Math.random() * height;
-                let len = Math.random() * 300 + 80;
-                let isVert = Math.random() > 0.5;
-                mapLines.push({
-                    x, y,
-                    x2: isVert ? x : x + len,
-                    y2: isVert ? y + len : y,
-                    opacity: Math.random() * 0.08 + 0.04
-                });
-            }
-        }
-        
-        function createParticles() {
-            particles = [];
-            for (let i = 0; i < 40; i++) {
-                particles.push({
-                    angle: Math.random() * Math.PI * 2,
-                    radius: 180 + Math.random() * 60,
-                    speed: 0.0003 + Math.random() * 0.0005,
-                    size: Math.random() * 2 + 0.5
-                });
-            }
-        }
-        
-        function drawParticles(time) {
-            const cx = width / 2;
-            const cy = height / 2;
-        
-            particles.forEach(p => {
-                const a = p.angle + time * p.speed;
-                const x = cx + Math.cos(a) * p.radius;
-                const y = cy + Math.sin(a) * p.radius;
-        
-                const glow = 0.3 + Math.sin(time * 0.002 + p.angle) * 0.2;
-        
-                ctx.beginPath();
-                ctx.fillStyle = `rgba(120,160,255,${glow})`;
-                ctx.arc(x, y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
-        
-        function drawEclipse(time) {
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const radius = 160;
-        
-            // Paleta medianoche dinámica
-            const hueBase = 240 + Math.sin(time * 0.0004) * 20;
-            const hueAccent = 260 + Math.cos(time * 0.0003) * 25;
-        
-            // Halo exterior profundo
-            const gradient = ctx.createRadialGradient(
-                centerX, centerY, radius * 0.7,
-                centerX, centerY, radius * 2.2
-            );
-        
-            gradient.addColorStop(0, `hsla(${hueAccent}, 80%, 40%, 0)`);
-            gradient.addColorStop(0.35, `hsla(${hueAccent}, 70%, 45%, 0.35)`);
-            gradient.addColorStop(0.6, `hsla(${hueBase}, 90%, 35%, 0.18)`);
-            gradient.addColorStop(1, `hsla(${hueBase}, 100%, 20%, 0)`);
-        
-            ctx.beginPath();
-            ctx.fillStyle = gradient;
-            ctx.arc(centerX, centerY, radius * 2.2, 0, Math.PI * 2);
-            ctx.fill();
-        
-            // Anillo principal respirando
-            ctx.beginPath();
-            ctx.strokeStyle = `hsla(${hueAccent}, 100%, 70%, 0.18)`;
-            ctx.lineWidth = 1.6;
-            ctx.arc(
-                centerX,
-                centerY,
-                radius + Math.sin(time * 0.0025) * 6,
-                0,
-                Math.PI * 2
-            );
-            ctx.stroke();
-        
-            // Segundo anillo energético
-            ctx.beginPath();
-            ctx.strokeStyle = `hsla(${hueBase}, 100%, 60%, 0.08)`;
-            ctx.lineWidth = 3;
-            ctx.arc(
-                centerX,
-                centerY,
-                radius + 25 + Math.cos(time * 0.0015) * 10,
-                0,
-                Math.PI * 2
-            );
-            ctx.stroke();
-        
-            // Núcleo oscuro
-            ctx.beginPath();
-            ctx.fillStyle = '#050508';
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        
-        function drawMap(time) {
-            ctx.lineWidth = 0.6;
-            mapLines.forEach(line => {
-                const flicker =
-                    Math.sin(time * 0.0015 + line.x * 0.01) * 0.05;
-        
-                ctx.strokeStyle =
-                    `rgba(110,140,255,${line.opacity + flicker})`;
-        
-                ctx.beginPath();
-                ctx.moveTo(line.x, line.y);
-                ctx.lineTo(line.x2, line.y2);
-                ctx.stroke();
-            });
-        }
-        
-        function animate(time = 0) {
-            ctx.clearRect(0, 0, width, height);
-        
-            // respiración del fondo
-            ctx.save();
-            ctx.translate(
-                Math.sin(time * 0.00015) * 25,
-                Math.cos(time * 0.00012) * 25
-            );
-            drawMap(time);
-            ctx.restore();
-        
-            drawParticles(time);
-            drawEclipse(time);
-        
-            requestAnimationFrame(animate);
-        }
-        
-        window.addEventListener('resize', resize);
-        init();
-    </script>
+<div class="core">
+CORE
+</div>
+
+<div class="module nogeo">
+NoGeo
+</div>
+
+<div class="module logistica">
+Logística
+</div>
+
+<div class="module comercial">
+Comercial
+</div>
+
+<div class="module gerencial">
+Gerencial
+</div>
+
+</div>
+
+<div class="footer">
+BY INTERRAPIDISIMO
+</div>
+
+</section>
+
+<script>
+
+/* ===== WEBGL PARTICLE FIELD ===== */
+
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+
+let w,h;
+let particles=[];
+
+function resize(){
+
+w=canvas.width=window.innerWidth;
+h=canvas.height=window.innerHeight;
+
+}
+
+window.addEventListener("resize",resize);
+resize();
+
+/* create particles */
+
+for(let i=0;i<120;i++){
+
+particles.push({
+
+x:Math.random()*w,
+y:Math.random()*h,
+vx:(Math.random()-.5)*.2,
+vy:(Math.random()-.5)*.2,
+size:Math.random()*2
+
+})
+
+}
+
+/* animation */
+
+function animate(){
+
+ctx.clearRect(0,0,w,h);
+
+particles.forEach(p=>{
+
+p.x+=p.vx;
+p.y+=p.vy;
+
+if(p.x<0||p.x>w)p.vx*=-1;
+if(p.y<0||p.y>h)p.vy*=-1;
+
+ctx.beginPath();
+ctx.fillStyle="rgba(108,140,255,.4)";
+ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+ctx.fill();
+
+})
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+
+/* ===== HUB INTERACTION ===== */
+
+document.querySelectorAll(".module").forEach(node=>{
+
+node.addEventListener("mouseenter",()=>{
+
+node.style.background="rgba(108,140,255,.15)";
+
+});
+
+node.addEventListener("mouseleave",()=>{
+
+node.style.background="transparent";
+
+});
+
+});
+
+</script>
+
 </body>
 </html>
