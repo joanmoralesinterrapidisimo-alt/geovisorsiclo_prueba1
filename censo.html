@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SICLO | Censo</title>
+
+<script src="https://unpkg.com/three"></script>
+<script src="https://unpkg.com/globe.gl"></script>
+
+<style>
+
+body{
+margin:0;
+background:#050508;
+font-family:Inter;
+color:white;
+overflow:hidden;
+}
+
+/* header */
+
+.header{
+position:absolute;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+width:90%;
+height:65px;
+border-radius:16px;
+background:rgba(30,30,30,.6);
+backdrop-filter:blur(15px);
+display:flex;
+align-items:center;
+padding:0 20px;
+z-index:10;
+}
+
+.logo{
+letter-spacing:.4rem;
+font-size:.9rem;
+}
+
+/* globe */
+
+#globe{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+}
+
+/* stats panel */
+
+.stats{
+
+position:absolute;
+right:40px;
+top:120px;
+
+width:260px;
+
+background:rgba(20,20,20,.7);
+border:1px solid rgba(255,255,255,.08);
+
+border-radius:14px;
+
+padding:20px;
+
+backdrop-filter:blur(10px);
+
+}
+
+.stats h3{
+font-weight:400;
+margin-bottom:10px;
+}
+
+.stat{
+font-size:.85rem;
+opacity:.7;
+margin:6px 0;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="header">
+
+<div class="logo">
+SICLO CENSO
+</div>
+
+</div>
+
+<div id="globe"></div>
+
+<div class="stats" id="stats">
+
+<h3>Información</h3>
+
+<div class="stat">Seleccione un nodo</div>
+
+</div>
+
+
+<script>
+
+/* crear globo */
+
+const world = Globe()
+
+(document.getElementById('globe'))
+
+.globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+
+.backgroundColor('#050508')
+
+.showAtmosphere(true)
+
+.atmosphereColor('#3a6aff')
+
+.atmosphereAltitude(0.25)
+
+
+/* cargar países */
+
+fetch("data/countries.geojson")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+world
+
+.polygonsData(data.features)
+
+.polygonCapColor(()=>"rgba(100,120,255,0.25)")
+
+.polygonSideColor(()=>"rgba(0,0,0,0)")
+
+.polygonStrokeColor(()=>"#6C8CFF")
+
+.polygonAltitude(.01)
+
+.onPolygonClick(p=>{
+
+if(p.properties.ADMIN==="Colombia"){
+
+zoomColombia()
+
+}
+
+})
+
+})
+
+
+/* zoom colombia */
+
+function zoomColombia(){
+
+world.pointOfView({
+
+lat:4.6,
+lng:-74,
+altitude:1.5
+
+},2000)
+
+loadCities()
+
+}
+
+
+/* cargar ciudades */
+
+function loadCities(){
+
+fetch("data/ciudades.geojson")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+world.pointsData(data.features.map(f=>({
+
+lat:f.geometry.coordinates[1],
+
+lng:f.geometry.coordinates[0],
+
+size:0.3,
+
+city:f.properties.name
+
+})))
+
+.pointAltitude(0.02)
+
+.pointColor(()=>"#6C8CFF")
+
+.onPointClick(p=>{
+
+if(p.city==="Bogota"){
+
+zoomBogota()
+
+}
+
+})
+
+})
+
+}
+
+
+/* zoom bogota */
+
+function zoomBogota(){
+
+world.pointOfView({
+
+lat:4.71,
+lng:-74.07,
+altitude:0.4
+
+},2000)
+
+loadNodes()
+
+}
+
+
+/* cargar nodos */
+
+function loadNodes(){
+
+fetch("data/nodos.geojson")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+world.pointsData(data.features.map(f=>({
+
+lat:f.geometry.coordinates[1],
+
+lng:f.geometry.coordinates[0],
+
+size:0.4,
+
+node:f.properties.nombre,
+
+envios:f.properties.envios
+
+})))
+
+.pointColor(()=>"#FF6B6B")
+
+.onPointClick(p=>{
+
+showStats(p)
+
+})
+
+})
+
+}
+
+
+/* panel estadisticas */
+
+function showStats(node){
+
+document.getElementById("stats").innerHTML=`
+
+<h3>${node.node}</h3>
+
+<div class="stat">Envios: ${node.envios}</div>
+
+<div class="stat">Densidad: Alta</div>
+
+<div class="stat">Microzona: E24</div>
+
+`
+
+}
+
+</script>
+
+</body>
+</html>
