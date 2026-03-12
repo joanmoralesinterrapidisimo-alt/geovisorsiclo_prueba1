@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>SICLO | Sistema de Integración Comercial y Logístico</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=Space+Grotesk:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
 
@@ -19,234 +20,189 @@ box-sizing:border-box;
 }
 
 body{
+
 font-family:'Inter',sans-serif;
 background:#050508;
 color:white;
-overflow-x:hidden;
-}
-
-/* ===== GRADIENT NOISE BACKGROUND ===== */
-
-.gradient-bg{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:0;
-
-background:
-radial-gradient(circle at 20% 30%, rgba(108,140,255,0.15), transparent 40%),
-radial-gradient(circle at 80% 70%, rgba(138,43,226,0.12), transparent 45%),
-radial-gradient(circle at 60% 20%, rgba(90,110,255,0.08), transparent 40%),
-#050508;
-
-animation:gradientMove 20s ease-in-out infinite alternate;
-}
-
-.gradient-bg:after{
-content:"";
-position:absolute;
-width:100%;
-height:100%;
-background-image:url("https://grainy-gradients.vercel.app/noise.svg");
-opacity:.25;
-mix-blend-mode:overlay;
-}
-
-@keyframes gradientMove{
-
-0%{filter:hue-rotate(0deg);transform:scale(1);}
-50%{filter:hue-rotate(20deg);transform:scale(1.05);}
-100%{filter:hue-rotate(-10deg);transform:scale(1);}
 
 }
 
-/* ===== WEBGL CANVAS ===== */
+/* ===== HEADER ===== */
 
-#bgCanvas{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:1;
-}
-
-/* ===== NAVBAR ===== */
-
-.navbar{
+.header{
 
 position:fixed;
-top:0;
-left:0;
-width:100%;
-padding:25px 60px;
-z-index:20;
+top:20px;
+left:50%;
+transform:translateX(-50%);
 
-backdrop-filter:blur(12px);
-background:rgba(0,0,0,.2);
+width:90%;
+max-width:1400px;
+
+height:70px;
+
+border-radius:18px;
+
+background:rgba(30,30,30,0.6);
+backdrop-filter:blur(20px);
 
 display:flex;
-justify-content:space-between;
 align-items:center;
+justify-content:space-between;
+
+padding:0 25px;
+
+border:1px solid rgba(255,255,255,0.05);
+
+z-index:50;
 
 }
+
+/* logo */
 
 .logo{
 
-font-family:'Space Grotesk';
-letter-spacing:.7rem;
+font-weight:500;
+letter-spacing:.3rem;
 font-size:.9rem;
-font-weight:300;
 
 }
 
-.nav-links a{
+/* search */
 
-margin-left:35px;
-font-size:.8rem;
-letter-spacing:.2rem;
-color:rgba(255,255,255,.6);
-text-decoration:none;
+.search-box{
 
-transition:all .3s;
+flex:1;
+display:flex;
+justify-content:center;
 
 }
 
-.nav-links a:hover{
+.search{
 
-color:#6C8CFF;
+width:420px;
+height:40px;
+
+border-radius:12px;
+
+border:1px solid rgba(255,255,255,.08);
+
+background:rgba(0,0,0,.4);
+
+color:white;
+
+padding:0 15px;
+
+font-size:.85rem;
 
 }
 
-/* ===== CENTER HUB ===== */
+/* header icons */
+
+.header-right{
+
+display:flex;
+gap:20px;
+
+}
+
+.icon{
+
+opacity:.7;
+cursor:pointer;
+
+}
+
+/* ===== HERO ===== */
 
 .hero{
 
-height:100vh;
+padding-top:180px;
+
 display:flex;
-align-items:center;
-justify-content:center;
 flex-direction:column;
-position:relative;
-z-index:10;
+align-items:center;
 
 }
 
+/* title */
+
 .title{
 
-font-family:'Space Grotesk';
-font-size:3.2rem;
-letter-spacing:1.6rem;
+font-size:3rem;
+letter-spacing:1.4rem;
 font-weight:300;
 
-margin-bottom:20px;
+margin-bottom:15px;
 
 }
 
 .subtitle{
 
 font-size:.85rem;
-letter-spacing:.35rem;
+letter-spacing:.4rem;
 color:rgba(255,255,255,.5);
 
-margin-bottom:80px;
+margin-bottom:120px;
 
 }
 
-/* ===== MODULE HUB ===== */
+/* ===== MODULES ===== */
 
-.module-hub{
+.modules{
 
-position:relative;
-width:480px;
-height:480px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+
+gap:40px;
+
+width:80%;
+max-width:1200px;
 
 }
 
-.module{
+/* module card */
 
-position:absolute;
-width:120px;
-height:120px;
+.card{
+
+height:180px;
+
+border-radius:18px;
+
+border:1px solid rgba(255,255,255,.06);
+
+background:rgba(255,255,255,0.02);
 
 display:flex;
 align-items:center;
 justify-content:center;
 
-border-radius:50%;
+font-size:.9rem;
 
-border:1px solid rgba(108,140,255,.25);
-
-color:white;
-
-font-size:.7rem;
 letter-spacing:.2rem;
-text-align:center;
+
+transition:.3s;
 
 cursor:pointer;
 
-backdrop-filter:blur(8px);
-
-transition:all .35s;
-
 }
 
-.module:hover{
+.card:hover{
 
-transform:scale(1.1);
 border-color:#6C8CFF;
 
-box-shadow:
-0 0 25px rgba(108,140,255,.3);
+background:rgba(108,140,255,0.06);
+
+transform:translateY(-6px);
 
 }
-
-/* positions */
-
-.nogeo{top:0;left:50%;transform:translate(-50%,-50%);}
-.logistica{left:0;top:50%;transform:translate(-50%,-50%);}
-.comercial{right:0;top:50%;transform:translate(50%,-50%);}
-.gerencial{bottom:0;left:50%;transform:translate(-50%,50%);}
-
-/* ===== CENTRAL NODE ===== */
-
-.core{
-
-position:absolute;
-top:50%;
-left:50%;
-
-width:180px;
-height:180px;
-
-transform:translate(-50%,-50%);
-
-border-radius:50%;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-border:1px solid rgba(255,255,255,.2);
-
-font-family:'Space Grotesk';
-letter-spacing:.4rem;
-
-backdrop-filter:blur(12px);
-
-}
-
-/* ===== FOOTER ===== */
 
 .footer{
 
-position:absolute;
-bottom:40px;
+margin-top:120px;
 
-font-size:.75rem;
-letter-spacing:.25rem;
+font-size:.7rem;
+letter-spacing:.3rem;
 
 color:rgba(255,255,255,.4);
 
@@ -255,151 +211,75 @@ color:rgba(255,255,255,.4);
 </style>
 </head>
 
+
 <body>
 
-<div class="gradient-bg"></div>
-<canvas id="bgCanvas"></canvas>
 
-<!-- NAVBAR -->
+<!-- HEADER -->
 
-<nav class="navbar">
+<div class="header">
 
-<div class="logo">SICLO</div>
+<div class="logo">
+SICLO
+</div>
 
-<div class="nav-links">
+<div class="search-box">
 
-<a href="#">NoGeo</a>
-<a href="#">Logística</a>
-<a href="#">Comercial</a>
-<a href="#">Gerencial</a>
-<a href="https://share-open-data-interrapidisimo.hub.arcgis.com/" target="_blank">InterBase</a>
+<input class="search" placeholder="Busca dirección, predio o microzona">
 
 </div>
 
-</nav>
+<div class="header-right">
+
+<div class="icon">☰</div>
+
+</div>
+
+</div>
+
 
 <!-- HERO -->
 
 <section class="hero">
 
-<div class="title">SICLO</div>
+<div class="title">
+SICLO
+</div>
 
 <div class="subtitle">
 SISTEMA DE INTEGRACIÓN COMERCIAL Y LOGÍSTICO
 </div>
 
-<div class="module-hub">
 
-<div class="core">
-CORE
-</div>
+<div class="modules">
 
-<div class="module nogeo">
+<div class="card">
 NoGeo
 </div>
 
-<div class="module logistica">
+<div class="card">
 Logística
 </div>
 
-<div class="module comercial">
+<div class="card">
 Comercial
 </div>
 
-<div class="module gerencial">
+<div class="card">
 Gerencial
 </div>
 
 </div>
 
+
 <div class="footer">
+
 BY INTERRAPIDISIMO
+
 </div>
 
 </section>
 
-<script>
-
-/* ===== WEBGL PARTICLE FIELD ===== */
-
-const canvas = document.getElementById("bgCanvas");
-const ctx = canvas.getContext("2d");
-
-let w,h;
-let particles=[];
-
-function resize(){
-
-w=canvas.width=window.innerWidth;
-h=canvas.height=window.innerHeight;
-
-}
-
-window.addEventListener("resize",resize);
-resize();
-
-/* create particles */
-
-for(let i=0;i<120;i++){
-
-particles.push({
-
-x:Math.random()*w,
-y:Math.random()*h,
-vx:(Math.random()-.5)*.2,
-vy:(Math.random()-.5)*.2,
-size:Math.random()*2
-
-})
-
-}
-
-/* animation */
-
-function animate(){
-
-ctx.clearRect(0,0,w,h);
-
-particles.forEach(p=>{
-
-p.x+=p.vx;
-p.y+=p.vy;
-
-if(p.x<0||p.x>w)p.vx*=-1;
-if(p.y<0||p.y>h)p.vy*=-1;
-
-ctx.beginPath();
-ctx.fillStyle="rgba(108,140,255,.4)";
-ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-ctx.fill();
-
-})
-
-requestAnimationFrame(animate);
-
-}
-
-animate();
-
-/* ===== HUB INTERACTION ===== */
-
-document.querySelectorAll(".module").forEach(node=>{
-
-node.addEventListener("mouseenter",()=>{
-
-node.style.background="rgba(108,140,255,.15)";
-
-});
-
-node.addEventListener("mouseleave",()=>{
-
-node.style.background="transparent";
-
-});
-
-});
-
-</script>
 
 </body>
 </html>
