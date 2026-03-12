@@ -116,19 +116,23 @@ SICLO CENSO
 
 /* crear globo */
 
-const world = Globe()
+const globe = Globe()
 
-(document.getElementById('globe'))
+(document.getElementById("globe"))
 
-.globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-
-.backgroundColor('#050508')
+.backgroundColor("#050508")
 
 .showAtmosphere(true)
+.atmosphereColor("#6C8CFF")
+.atmosphereAltitude(0.15)
 
-.atmosphereColor('#3a6aff')
+/* QUITAMOS TEXTURA PESADA */
 
-.atmosphereAltitude(0.25)
+.globeMaterial(new THREE.MeshPhongMaterial({
+color:"#0a0a0f",
+transparent:true,
+opacity:.9
+}))
 
 
 /* cargar países */
